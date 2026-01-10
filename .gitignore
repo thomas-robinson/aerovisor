@@ -1,0 +1,39 @@
+# --- Fortran build artifacts ---
+*.o
+*.obj
+*.mod
+*.smod
+*.d
+
+# Common Fortran module output folder name (if used)
+mod/
+
+# Executables
+visor_cfd
+*.exe
+
+# --- Outputs / generated data ---
+output/
+results/
+results_fvm/
+
+# --- Python caches & local envs ---
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+
+# --- macOS / editor cruft ---
+.DS_Store
+.vscode/
+
+# --- Optional: plotting/large binaries (uncomment if they appear) ---
+ *.gif
+ *.png
+ *.pdf
+ *.svg
+ *.eps
+
+# --- Log files
+ *.log
