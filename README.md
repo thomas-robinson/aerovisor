@@ -4,7 +4,7 @@ A 3D computational fluid dynamics (CFD) simulation for analyzing the aerodynamic
 
 ## Overview
 
-This project simulates airflow around a runner at race pace (8 m/s ≈ 5:00/km) to study how different visor angles affect aerodynamic drag. The solver is written in modern Fortran with OpenMP parallelization, and includes Python scripts for postprocessing and visualization.
+This project simulates airflow around a runner at race pace to study how different visor angles affect aerodynamic drag. The solver is written in modern Fortran with OpenMP parallelization, and includes Python scripts for postprocessing and visualization.
 
 ## Features
 
@@ -12,12 +12,19 @@ This project simulates airflow around a runner at race pace (8 m/s ≈ 5:00/km) 
 - **Parametric Visor Study** — Automatic sweep of visor angles from -45° to +45°
 - **Non-Uniform Grid** — Refined resolution near the head/visor region for accuracy
 - **OpenMP Parallelization** — Efficient multi-core execution
+- **Configurable Runtime** — Namelist input file or command-line parameters
 - **Automated Workflow** — Single script to build, run, and generate all outputs
 
 ## Quick Start
 
 ```bash
-# Run the complete workflow (build + simulate + postprocess)
+# Quick test run (500 iterations, ~5 min)
+./run_experiment.sh 500
+
+# Production run (2000 iterations, ~20 min, well converged)
+./run_experiment.sh 2000
+
+# Use default from visor.nml
 ./run_experiment.sh
 ```
 
@@ -26,6 +33,27 @@ This will:
 2. Set up a Python virtual environment with dependencies
 3. Run the CFD simulation for baseline and 13 visor angles
 4. Generate drag analysis plots, cross-section visualizations, and flow animations
+
+## Runtime Configuration
+
+Edit `visor.nml` to change default parameters:
+
+```fortran
+&experiment
+    n_iterations = 500      ! 500=quick, 2000=production, 5000=high-accuracy
+    report_interval = 50    ! Progress reporting frequency
+    snapshot_interval = 50  ! Animation frame frequency
+    inlet_velocity = 5.0    ! m/s (5.0 = 18 km/h running pace)
+/
+```
+
+Or override iterations from command line:
+```bash
+./visor_cfd 2000           # Run solver directly with 2000 iterations
+./run_experiment.sh 2000   # Full workflow with 2000 iterations
+```
+
+Output files are automatically tagged with iteration count (e.g., `visor_results_2000.csv`).
 
 ## Requirements
 
@@ -51,11 +79,12 @@ aerovisor/
 │   └── visor_experiment.f90  # Experiment driver
 ├── output/                   # Generated outputs (after running)
 │   ├── snapshots/            # Binary flow-field snapshots
-│   ├── visor_results.csv     # Drag data for all configurations
-│   ├── drag_comparison.*     # Drag analysis plots (PNG/EPS/SVG)
-│   ├── grid_resolution.*     # Grid visualization (PNG/EPS/SVG)
+│   ├── visor_results_*.csv   # Drag data for all configurations
+│   ├── drag_comparison_*.*   # Drag analysis plots (PNG/EPS/SVG)
+│   ├── grid_resolution_*.*   # Grid visualization (PNG/EPS/SVG)
 │   ├── cross_sections_*.*    # Flow cross-sections (PNG/EPS/SVG)
 │   └── animation_*.gif       # Flow field animations
+├── visor.nml                 # Runtime configuration (namelist)
 ├── Makefile                  # Build configuration
 ├── run_experiment.sh         # Automated workflow script
 ├── plot_results.py           # Postprocessing & visualization
@@ -81,9 +110,9 @@ aerovisor/
 - **Boundary Conditions**: Uniform inlet, zero-gradient outlet, slip walls
 
 ### Visor Configurations
-The experiment tests 14 configurations:
+The experiment tests 20 configurations:
 - 1 baseline (no visor)
-- 13 visor angles: -45°, -40°, ..., 0°, ..., +40°, +45° (by 7.5° increments)
+- 19 visor angles: -45°, -40°, -35°, ..., 0°, ..., +35°, +40°, +45° (5° increments)
 
 ## Manual Build & Run
 
@@ -91,26 +120,37 @@ The experiment tests 14 configurations:
 # Build
 make clean && make
 
-# Run with custom thread count
-OMP_NUM_THREADS=4 ./visor_cfd
+# Run with custom thread count and iterations
+OMP_NUM_THREADS=4 ./visor_cfd 2000
 
-# Postprocess
+# Postprocess specific iteration run
 source venv/bin/activate
-python plot_results.py
+python plot_results.py 2000
 ```
 
 ## Output Files
 
+Output files include iteration count in filename (e.g., `_500` or `_2000`):
+
 ### Data
-- `visor_results.csv` — Drag force for each configuration
-- `grid_info.csv` — Grid dimensions and domain size
-- `z_coords.csv` — Vertical cell coordinates
+- `visor_results_*.csv` — Drag force for each configuration
+- `grid_info_*.csv` — Grid dimensions and domain size
+- `z_coords_*.csv` — Vertical cell coordinates
 
 ### Visualizations
-- `drag_comparison.*` — Multi-panel drag analysis (absolute, relative, polar)
-- `grid_resolution.*` — Non-uniform grid spacing visualization
+- `drag_comparison_*.*` — Multi-panel drag analysis (absolute, relative, polar)
+- `grid_resolution_*.*` — Non-uniform grid spacing visualization
 - `cross_sections_*.*` — X-Z (side), Y-Z (front), X-Y (top) flow views
 - `animation_*.gif` — Time evolution of flow field
+
+## Iteration Guidelines
+
+| Iterations | Time | Use Case |
+|------------|------|----------|
+| 100-500 | ~2-5 min | Quick tests, debugging |
+| 500 | ~5 min | Fast comparison (may not be fully converged) |
+| 2000 | ~20 min | Production runs (well converged) |
+| 5000 | ~50 min | High-accuracy validation |
 
 ## License
 
@@ -118,4 +158,4 @@ MIT License
 
 ## Author
 
-Tom
+@thomas-robinson Tom Robinson 

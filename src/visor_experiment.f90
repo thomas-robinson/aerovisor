@@ -2,6 +2,10 @@
 ! visor_experiment.f90
 ! Main program for visor aerodynamics experiment
 ! Saves flow field snapshots for animation and comprehensive drag analysis
+!
+! Runtime configuration via namelist file (visor.nml) or command-line:
+!   ./visor_cfd                  # Uses visor.nml or defaults
+!   ./visor_cfd 2000             # Override iterations to 2000
 !===============================================================================
 program visor_experiment
     use grid_module
@@ -16,12 +20,15 @@ program visor_experiment
     ! Geometry mask
     logical, allocatable :: mask(:,:,:)
     
-    ! Experiment parameters
+    ! Experiment parameters (can be set via namelist)
     real(dp) :: runner_pos(3)
     real(dp) :: inlet_velocity
     integer :: n_iterations
     integer :: report_interval
     integer :: snapshot_interval
+    
+    ! Namelist for runtime configuration
+    namelist /experiment/ n_iterations, report_interval, snapshot_interval, inlet_velocity
     
     ! Visor angles to test (including backward angles)
     real(dp), allocatable :: angles(:)
@@ -35,12 +42,45 @@ program visor_experiment
     integer :: i_angle, iter, snap_count
     real(dp) :: angle, Fx, Fy, Fz, u_max, dt
     real(dp) :: start_time, end_time, elapsed
-    character(len=256) :: filename, angle_str
-    integer :: head_k, visor_cells
+    character(len=256) :: filename, angle_str, iter_suffix
+    character(len=32) :: arg
+    integer :: head_k, visor_cells, ios, nargs
     real(dp) :: dz_at_head
+    logical :: nml_exists
     
     ! Initialize
     call cpu_time(start_time)
+    
+    !---------------------------------------------------------------------------
+    ! Set defaults, then read namelist, then check command-line override
+    !---------------------------------------------------------------------------
+    n_iterations = 500
+    report_interval = 50
+    snapshot_interval = 50
+    inlet_velocity = 5.0_dp
+    
+    ! Try to read namelist file
+    inquire(file='visor.nml', exist=nml_exists)
+    if (nml_exists) then
+        open(unit=99, file='visor.nml', status='old', iostat=ios)
+        if (ios == 0) then
+            read(99, nml=experiment, iostat=ios)
+            close(99)
+        end if
+    end if
+    
+    ! Check for command-line override of n_iterations
+    nargs = command_argument_count()
+    if (nargs >= 1) then
+        call get_command_argument(1, arg)
+        read(arg, *, iostat=ios) n_iterations
+        if (ios /= 0) then
+            print '(A)', 'Warning: Invalid command-line argument, using namelist/default value'
+        end if
+    end if
+    
+    ! Create iteration suffix for output files (e.g., "_500" or "_2000")
+    write(iter_suffix, '(A,I0)') '_', n_iterations
     
     print '(A)', ''
     print '(A)', '========================================================================'
@@ -75,10 +115,6 @@ program visor_experiment
     ! Experiment configuration
     !---------------------------------------------------------------------------
     runner_pos = [0.8_dp, 0.85_dp, 0.0_dp]  ! Runner base position
-    inlet_velocity = 5.0_dp                   ! 5 m/s = 18 km/h running pace
-    n_iterations = 500                        ! Iterations per configuration (increased for convergence)
-    report_interval = 50
-    snapshot_interval = 50                    ! Save snapshot every N iterations
     
     print '(A)', 'Experiment Configuration:'
     print '(A,3F8.3)', '  Runner position: ', runner_pos
@@ -92,18 +128,20 @@ program visor_experiment
     ! Define visor angles to test
     ! Positive = tilted up (normal wear)
     ! Negative = tilted down (including backward-facing)
+    ! Increment by 5 degrees from -45 to +45
     !---------------------------------------------------------------------------
-    n_angles = 13
+    n_angles = 19
     allocate(angles(n_angles))
-    ! Backward/down: -45, -30, -15, 0, then forward/up: 15, 30, 45, etc.
-    angles = [-45.0_dp, -30.0_dp, -15.0_dp, -10.0_dp, -5.0_dp, 0.0_dp, &
-              5.0_dp, 10.0_dp, 15.0_dp, 20.0_dp, 30.0_dp, 40.0_dp, 45.0_dp]
+    ! -45, -40, -35, -30, -25, -20, -15, -10, -5, 0, 5, 10, 15, 20, 25, 30, 35, 40, 45
+    angles = [-45.0_dp, -40.0_dp, -35.0_dp, -30.0_dp, -25.0_dp, -20.0_dp, -15.0_dp, -10.0_dp, -5.0_dp, &
+               0.0_dp, &
+               5.0_dp, 10.0_dp, 15.0_dp, 20.0_dp, 25.0_dp, 30.0_dp, 35.0_dp, 40.0_dp, 45.0_dp]
     
     allocate(drag_results(n_angles))
     allocate(mask(grid%nx, grid%ny, grid%nz))
     
     print '(A,I3,A)', 'Testing ', n_angles, ' visor angles plus baseline (no visor)'
-    print '(A)', 'Angles: -45 to +45 degrees (negative = tilted down/backward)'
+    print '(A)', 'Angles: -45 to +45 degrees in 5° increments (negative = tilted down/backward)'
     print '(A)', ''
     
     ! Create output directory for snapshots
@@ -135,7 +173,8 @@ program visor_experiment
         ! Save snapshot for animation
         if (mod(iter, snapshot_interval) == 0) then
             snap_count = snap_count + 1
-            write(filename, '(A,I4.4,A)') 'output/snapshots/baseline_', snap_count, '.bin'
+            write(filename, '(A,A,A,I4.4,A)') 'output/snapshots/baseline', &
+                  trim(iter_suffix), '_', snap_count, '.bin'
             call save_snapshot(solver, grid, filename)
         end if
     end do
@@ -176,8 +215,8 @@ program visor_experiment
             ! Save snapshot for animation
             if (mod(iter, snapshot_interval) == 0) then
                 snap_count = snap_count + 1
-                write(filename, '(A,I4.4,A,I4.4,A)') 'output/snapshots/visor_', &
-                      nint(angle) + 100, '_', snap_count, '.bin'
+                write(filename, '(A,I4.4,A,A,I4.4,A)') 'output/snapshots/visor_', &
+                      nint(angle) + 100, trim(iter_suffix), '_', snap_count, '.bin'
                 call save_snapshot(solver, grid, filename)
             end if
         end do
@@ -226,9 +265,10 @@ program visor_experiment
     print '(A,F10.1,A)', 'Total computation time: ', elapsed, ' seconds'
     
     !---------------------------------------------------------------------------
-    ! Save results to CSV file
+    ! Save results to CSV file (with iteration count in filename)
     !---------------------------------------------------------------------------
-    open(unit=10, file='output/visor_results.csv', status='replace')
+    write(filename, '(A,A,A)') 'output/visor_results', trim(iter_suffix), '.csv'
+    open(unit=10, file=trim(filename), status='replace')
     write(10, '(A)') 'angle_degrees,drag_N,drag_diff_N,drag_diff_percent'
     write(10, '(A,ES16.8,A)') 'baseline,', baseline_drag, ',0.0,0.0'
     do i_angle = 1, n_angles
@@ -238,25 +278,28 @@ program visor_experiment
               100.0_dp * (drag_results(i_angle) - baseline_drag) / baseline_drag
     end do
     close(10)
-    print '(A)', 'Results saved to: output/visor_results.csv'
+    print '(A,A)', 'Results saved to: ', trim(filename)
     
-    ! Save grid info for Python plotting
-    open(unit=11, file='output/grid_info.csv', status='replace')
+    ! Save grid info for Python plotting (with iteration suffix for consistency)
+    write(filename, '(A,A,A)') 'output/grid_info', trim(iter_suffix), '.csv'
+    open(unit=11, file=trim(filename), status='replace')
     write(11, '(A)') 'nx,ny,nz,length,width,height'
     write(11, '(I5,A,I5,A,I5,A,F8.4,A,F8.4,A,F8.4)') &
           grid%nx, ',', grid%ny, ',', grid%nz, ',', &
           grid%length, ',', grid%width, ',', grid%height
     close(11)
     
-    ! Save z-coordinates for Python
-    open(unit=12, file='output/z_coords.csv', status='replace')
+    ! Save z-coordinates for Python (with iteration suffix)
+    write(filename, '(A,A,A)') 'output/z_coords', trim(iter_suffix), '.csv'
+    open(unit=12, file=trim(filename), status='replace')
     write(12, '(A)') 'k,z,dz'
     do iter = 1, grid%nz
         write(12, '(I5,A,F10.6,A,F10.6)') iter, ',', grid%z(iter), ',', grid%dz(iter)
     end do
     close(12)
     
-    print '(A)', 'Grid info saved to: output/grid_info.csv, output/z_coords.csv'
+    print '(A,A,A)', 'Grid info saved to: output/grid_info', trim(iter_suffix), '.csv'
+    print '(A,A,A)', 'Z-coords saved to: output/z_coords', trim(iter_suffix), '.csv'
     
     !---------------------------------------------------------------------------
     ! Cleanup
@@ -267,7 +310,8 @@ program visor_experiment
     deallocate(mask)
     
     print '(A)', ''
-    print '(A)', 'Done! Run: python plot_results.py to generate animations and plots.'
+    print '(A,A,A)', 'Done! Run: python plot_results.py ', trim(iter_suffix(2:)), &
+          ' to generate animations and plots.'
     
 contains
 

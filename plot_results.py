@@ -2,6 +2,11 @@
 """
 plot_results.py
 Generate animations and comparison plots from visor aerodynamics experiment
+
+Usage:
+    python plot_results.py           # Auto-detect iteration count from files
+    python plot_results.py 500       # Process files with _500 suffix
+    python plot_results.py 2000      # Process files with _2000 suffix
 """
 
 import numpy as np
@@ -13,6 +18,10 @@ from pathlib import Path
 import pandas as pd
 import glob
 import struct
+import sys
+
+# Global iteration suffix (set from command line or auto-detected)
+ITER_SUFFIX = ""
 
 
 def read_snapshot(filename):
@@ -45,10 +54,10 @@ def read_snapshot(filename):
     }
 
 
-def read_grid_info():
+def read_grid_info(suffix=""):
     """Read grid information from CSV files."""
-    grid_info = pd.read_csv('output/grid_info.csv')
-    z_coords = pd.read_csv('output/z_coords.csv')
+    grid_info = pd.read_csv(f'output/grid_info{suffix}.csv')
+    z_coords = pd.read_csv(f'output/z_coords{suffix}.csv')
     
     nx = int(grid_info['nx'].iloc[0])
     ny = int(grid_info['ny'].iloc[0])
@@ -71,11 +80,11 @@ def read_grid_info():
     }
 
 
-def create_flow_animation(config_name, output_name, grid):
+def create_flow_animation(config_name, output_name, grid, suffix=""):
     """Create animation of flow field evolution for a specific configuration."""
     
-    # Find all snapshots for this configuration
-    pattern = f'output/snapshots/{config_name}_*.bin'
+    # Find all snapshots for this configuration (with iteration suffix)
+    pattern = f'output/snapshots/{config_name}{suffix}_*.bin'
     files = sorted(glob.glob(pattern))
     
     if len(files) == 0:
@@ -163,22 +172,22 @@ def create_flow_animation(config_name, output_name, grid):
     
     anim = FuncAnimation(fig, update, frames=len(files), interval=200, blit=False)
     
-    # Save animation
+    # Save animation (with iteration suffix)
     writer = PillowWriter(fps=5)
-    anim.save(f'output/{output_name}.gif', writer=writer, dpi=100)
+    anim.save(f'output/{output_name}{suffix}.gif', writer=writer, dpi=100)
     plt.close(fig)
     
-    print(f"  Saved: output/{output_name}.gif")
+    print(f"  Saved: output/{output_name}{suffix}.gif")
     return True
 
 
-def create_drag_comparison_plot():
+def create_drag_comparison_plot(suffix=""):
     """Create comprehensive drag comparison plot."""
     
     print("Creating drag comparison plot...")
     
     # Read results
-    results = pd.read_csv('output/visor_results.csv')
+    results = pd.read_csv(f'output/visor_results{suffix}.csv')
     
     # Separate baseline and visor data
     baseline_row = results[results['angle_degrees'] == 'baseline']
@@ -254,12 +263,12 @@ def create_drag_comparison_plot():
     fig.suptitle('Visor Aerodynamics Analysis', fontsize=16, fontweight='bold', y=1.02)
     plt.tight_layout()
     
-    # Save plot in multiple formats
+    # Save plot in multiple formats (with iteration suffix)
     for ext in ['png', 'eps', 'svg']:
-        fig.savefig(f'output/drag_comparison.{ext}', dpi=150, bbox_inches='tight')
+        fig.savefig(f'output/drag_comparison{suffix}.{ext}', dpi=150, bbox_inches='tight')
     
     plt.close(fig)
-    print("  Saved: output/drag_comparison.{png,eps,svg}")
+    print(f"  Saved: output/drag_comparison{suffix}.{{png,eps,svg}}")
     
     # Print summary
     print("\n" + "="*60)
@@ -276,12 +285,12 @@ def create_drag_comparison_plot():
         print(f"  {angle:+6.0f}°: {drags[i]:12.4f} N  ({sign}{drag_pcts[i]:.2f}%)")
 
 
-def create_grid_resolution_plot():
+def create_grid_resolution_plot(suffix=""):
     """Create plot showing non-uniform grid resolution."""
     
     print("Creating grid resolution plot...")
     
-    grid = read_grid_info()
+    grid = read_grid_info(suffix)
     
     fig, axes = plt.subplots(1, 2, figsize=(12, 5))
     
@@ -321,13 +330,13 @@ def create_grid_resolution_plot():
     plt.tight_layout()
     
     for ext in ['png', 'eps', 'svg']:
-        fig.savefig(f'output/grid_resolution.{ext}', dpi=150, bbox_inches='tight')
+        fig.savefig(f'output/grid_resolution{suffix}.{ext}', dpi=150, bbox_inches='tight')
     
     plt.close(fig)
-    print("  Saved: output/grid_resolution.{png,eps,svg}")
+    print(f"  Saved: output/grid_resolution{suffix}.{{png,eps,svg}}")
 
 
-def create_cross_section_plots(config_name, grid):
+def create_cross_section_plots(config_name, grid, suffix=""):
     """Create cross-section plots showing flow field with masked runner.
     
     Creates three views:
@@ -336,8 +345,8 @@ def create_cross_section_plots(config_name, grid):
     - X-Y plane (top view, at visor/head level)
     """
     
-    # Find the final snapshot for this configuration
-    pattern = f'output/snapshots/{config_name}_*.bin'
+    # Find the final snapshot for this configuration (with iteration suffix)
+    pattern = f'output/snapshots/{config_name}{suffix}_*.bin'
     files = sorted(glob.glob(pattern))
     
     if len(files) == 0:
@@ -517,8 +526,8 @@ def create_cross_section_plots(config_name, grid):
     fig.suptitle(f'Flow Field Cross-Sections: {title_name}', fontsize=14, fontweight='bold')
     plt.tight_layout()
     
-    # Save in multiple formats
-    output_base = f'output/cross_sections_{config_name}'
+    # Save in multiple formats (with iteration suffix)
+    output_base = f'output/cross_sections_{config_name}{suffix}'
     for ext in ['png', 'eps', 'svg']:
         fig.savefig(f'{output_base}.{ext}', dpi=150, bbox_inches='tight')
     
@@ -535,6 +544,40 @@ def main():
     print("="*60)
     print()
     
+    # Parse command-line argument for iteration count
+    suffix = ""
+    if len(sys.argv) > 1:
+        try:
+            n_iter = int(sys.argv[1])
+            suffix = f"_{n_iter}"
+            print(f"Processing files with suffix: {suffix}")
+        except ValueError:
+            print(f"Warning: Invalid iteration count '{sys.argv[1]}', auto-detecting...")
+    
+    # Auto-detect suffix from existing files if not specified
+    if not suffix:
+        # Look for visor_results_*.csv files
+        result_files = glob.glob('output/visor_results_*.csv')
+        if result_files:
+            # Use the most recent one (or highest iteration count)
+            latest = sorted(result_files)[-1]
+            # Extract suffix like "_500" or "_2000"
+            import re
+            match = re.search(r'visor_results(_\d+)\.csv', latest)
+            if match:
+                suffix = match.group(1)
+                print(f"Auto-detected suffix: {suffix}")
+        
+        if not suffix:
+            # Fallback: check for old-style files without suffix
+            if Path('output/visor_results.csv').exists():
+                print("Using files without iteration suffix (legacy format)")
+            else:
+                print("ERROR: No result files found in output/")
+                return
+    
+    print()
+    
     # Check for output directory
     if not Path('output').exists():
         print("ERROR: output/ directory not found. Run the Fortran simulation first.")
@@ -542,7 +585,7 @@ def main():
     
     # Read grid info
     try:
-        grid = read_grid_info()
+        grid = read_grid_info(suffix)
         print(f"Grid: {grid['nx']}x{grid['ny']}x{grid['nz']}")
         print(f"Domain: {grid['length']}m x {grid['width']}m x {grid['height']}m")
         print()
@@ -551,12 +594,12 @@ def main():
         return
     
     # Create grid resolution plot
-    create_grid_resolution_plot()
+    create_grid_resolution_plot(suffix)
     print()
     
     # Create drag comparison plot
     try:
-        create_drag_comparison_plot()
+        create_drag_comparison_plot(suffix)
     except Exception as e:
         print(f"ERROR creating drag plot: {e}")
     print()
@@ -564,11 +607,17 @@ def main():
     # Create animations for each configuration
     print("Creating flow field animations...")
     
-    # Baseline animation
-    create_flow_animation('baseline', 'animation_baseline', grid)
+    # Baseline animation (with suffix in snapshot filename pattern)
+    create_flow_animation('baseline', 'animation_baseline', grid, suffix)
     
-    # Find all visor configurations
-    snapshot_files = glob.glob('output/snapshots/visor_*_0001.bin')
+    # Find all visor configurations (with iteration suffix in filename)
+    snapshot_pattern = f'output/snapshots/visor_*{suffix}_0001.bin'
+    snapshot_files = glob.glob(snapshot_pattern)
+    
+    # If no files found with suffix, try without (legacy support)
+    if not snapshot_files and suffix:
+        snapshot_files = glob.glob('output/snapshots/visor_*_0001.bin')
+    
     configs = set()
     for f in snapshot_files:
         # Extract config name (e.g., visor_0055 for -45 degrees, visor_0145 for +45)
@@ -583,7 +632,7 @@ def main():
             angle_code = int(config.split('_')[1])
             angle = angle_code - 100  # Decode: 55 -> -45, 145 -> +45
             output_name = f'animation_visor_{angle:+d}deg'
-            create_flow_animation(config, output_name, grid)
+            create_flow_animation(config, output_name, grid, suffix)
         except Exception as e:
             print(f"  Error processing {config}: {e}")
     
@@ -593,12 +642,12 @@ def main():
     print("Creating cross-section plots...")
     
     # Baseline cross-sections
-    create_cross_section_plots('baseline', grid)
+    create_cross_section_plots('baseline', grid, suffix)
     
     # Cross-sections for each visor configuration
     for config in sorted(configs):
         try:
-            create_cross_section_plots(config, grid)
+            create_cross_section_plots(config, grid, suffix)
         except Exception as e:
             print(f"  Error processing {config}: {e}")
     
@@ -606,11 +655,11 @@ def main():
     print("="*60)
     print("POST-PROCESSING COMPLETE")
     print("="*60)
-    print("\nGenerated files in output/:")
-    print("  - drag_comparison.{png,eps,svg}: Drag analysis plots")
-    print("  - grid_resolution.{png,eps,svg}: Grid resolution visualization")
-    print("  - cross_sections_*.{png,eps,svg}: Flow field cross-sections")
-    print("  - animation_*.gif: Flow field animations")
+    print(f"\nGenerated files in output/ (suffix: {suffix if suffix else 'none'}):")
+    print(f"  - drag_comparison{suffix}.{{png,eps,svg}}: Drag analysis plots")
+    print(f"  - grid_resolution{suffix}.{{png,eps,svg}}: Grid resolution visualization")
+    print(f"  - cross_sections_*{suffix}.{{png,eps,svg}}: Flow field cross-sections")
+    print(f"  - animation_*{suffix}.gif: Flow field animations")
 
 
 if __name__ == "__main__":

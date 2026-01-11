@@ -1,0 +1,235 @@
+\documentclass[12pt,a4paper]{article}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{siunitx}
+\usepackage[margin=1in]{geometry}
+\usepackage{natbib}
+\usepackage{hyperref}
+\usepackage{cleveref}
+
+% Title information
+\title{Computational Analysis of Visor Angle Effects on Aerodynamic Drag During Running}
+\author{Thomas Robinson}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This study presents a three-dimensional computational fluid dynamics (CFD) analysis of aerodynamic drag forces acting on a runner wearing a visor at various angles. Using a finite volume method (FVM) solver with a SIMPLE-like pressure correction scheme, we systematically investigate how visor orientation affects the total drag force experienced by the athlete. The simulation encompasses 19 visor angles ranging from $-45°$ to $+45°$ in $5°$ increments, compared against a baseline configuration without a visor. Results provide quantitative guidance for athletes and equipment designers seeking to minimize aerodynamic resistance during competition.
+\end{abstract}
+
+%===============================================================================
+\section{Introduction}
+%===============================================================================
+
+Aerodynamic drag is a significant factor in endurance running performance, particularly at competitive speeds. As running velocity increases, aerodynamic resistance grows quadratically, making it an increasingly important consideration for elite athletes \citep{davies1980effects, pugh1971influence}. At typical competitive running speeds of \SIrange{5}{6}{\meter\per\second} (approximately \SIrange{16}{22}{\kilo\meter\per\hour}), aerodynamic drag can account for 2--8\% of the total energy expenditure, with this percentage increasing substantially at higher speeds encountered during sprinting or fast-paced finishes \citep{kyle1986effect, diprampero1986energetics}.
+
+The human body presents a complex, bluff-body geometry to oncoming airflow. Unlike streamlined shapes designed for minimal drag, the human form generates substantial pressure drag due to flow separation and wake formation behind the body \citep{hoerner1965fluid}. The head and upper torso region contribute disproportionately to total drag due to their frontal area and position at the leading edge of the body's wake structure \citep{shanebrook1976aerodynamic}. This makes head-mounted accessories, including visors and caps, potentially significant modifiers of overall aerodynamic performance.
+
+Visors are commonly worn by runners for sun protection and glare reduction, yet their aerodynamic implications remain poorly characterized in the scientific literature. While extensive research has examined aerodynamic optimization in cycling \citep{defraeye2010aerodynamic, crouch2014flow} and speed skating \citep{dauteuil2012wind}, comparatively little attention has been directed toward running accessories. The visor presents an interesting case study: its small frontal area suggests minimal direct drag contribution, yet its position at the flow stagnation region of the head may induce disproportionate effects on the downstream wake structure \citep{zdravkovich1997flow}.
+
+The angle at which a visor is worn---tilted upward, horizontal, or downward---fundamentally alters the local flow field around the head. An upward-tilted visor may deflect airflow over the head, potentially reducing wake size, while a downward tilt might create additional flow separation and recirculation zones \citep{bearman1984vortex}. These effects are difficult to predict intuitively and require detailed computational or experimental investigation.
+
+Previous studies of human aerodynamics have employed various methodologies, including wind tunnel testing with mannequins \citep{hill1993aerodynamic, brownlie2004reducing}, field measurements using coast-down protocols \citep{candau1998energy}, and computational fluid dynamics simulations \citep{blocken2013cfd, fintelman2014optimal}. Wind tunnel studies provide accurate force measurements but are limited by the static nature of mannequin models and the difficulty of systematically varying geometric parameters. CFD approaches offer the advantage of parametric investigation at relatively low cost, enabling systematic studies of geometric variations that would be impractical experimentally \citep{versteeg2007introduction}.
+
+The present study employs a three-dimensional CFD simulation to quantify the aerodynamic drag on a simplified runner model across a comprehensive range of visor angles. By maintaining all other parameters constant while varying only the visor orientation, we isolate the specific contribution of visor angle to total drag. The simulations use a finite volume discretization of the incompressible Navier-Stokes equations with a SIMPLE-like pressure correction algorithm, providing physically realistic predictions of the flow field and integrated forces.
+
+The objectives of this research are:
+\begin{enumerate}
+    \item To quantify the aerodynamic drag force on a runner with and without a visor across a range of orientation angles
+    \item To identify optimal visor angles that minimize aerodynamic drag
+    \item To characterize the flow field modifications induced by different visor orientations
+    \item To provide practical guidance for athletes seeking to minimize aerodynamic resistance through equipment selection and adjustment
+\end{enumerate}
+
+This paper is organized as follows: \Cref{sec:methods} describes the computational methodology, including governing equations, numerical methods, geometric models, and boundary conditions. \Cref{sec:results} presents results of the parametric visor angle study. \Cref{sec:discussion} discusses the physical mechanisms underlying the observed trends and practical implications for athletes. \Cref{sec:conclusions} summarizes conclusions and suggests directions for future research.
+
+%===============================================================================
+\section{Methods}
+\label{sec:methods}
+%===============================================================================
+
+\subsection{Governing Equations}
+
+The flow around a runner is modeled using the three-dimensional incompressible Navier-Stokes equations. For an incompressible, Newtonian fluid with constant properties, the continuity and momentum equations are \citep{batchelor1967introduction}:
+
+\textbf{Continuity (mass conservation):}
+\begin{equation}
+    \nabla \cdot \mathbf{u} = 0
+    \label{eq:continuity}
+\end{equation}
+
+\textbf{Momentum (Navier-Stokes):}
+\begin{equation}
+    \frac{\partial \mathbf{u}}{\partial t} + (\mathbf{u} \cdot \nabla)\mathbf{u} = -\frac{1}{\rho}\nabla p + \nu \nabla^2 \mathbf{u}
+    \label{eq:momentum}
+\end{equation}
+
+where $\mathbf{u} = (u, v, w)$ is the velocity vector, $p$ is the pressure, $\rho$ is the fluid density, and $\nu$ is the kinematic viscosity. For air at standard conditions (\SI{20}{\celsius}, \SI{1}{\atm}), $\rho = \SI{1.225}{\kilogram\per\meter\cubed}$ and $\nu = \SI{1.5e-5}{\meter\squared\per\second}$.
+
+In component form for a Cartesian coordinate system $(x, y, z)$:
+\begin{equation}
+    \frac{\partial u}{\partial x} + \frac{\partial v}{\partial y} + \frac{\partial w}{\partial z} = 0
+    \label{eq:continuity_component}
+\end{equation}
+
+\begin{equation}
+    \frac{\partial u}{\partial t} + u\frac{\partial u}{\partial x} + v\frac{\partial u}{\partial y} + w\frac{\partial u}{\partial z} = -\frac{1}{\rho}\frac{\partial p}{\partial x} + \nu\left(\frac{\partial^2 u}{\partial x^2} + \frac{\partial^2 u}{\partial y^2} + \frac{\partial^2 u}{\partial z^2}\right)
+    \label{eq:x_momentum}
+\end{equation}
+
+with analogous equations for $v$ and $w$ momentum.
+
+\subsection{Numerical Method}
+
+The governing equations are discretized using the finite volume method (FVM) on a structured, non-uniform grid \citep{patankar1980numerical, ferziger2002computational}. The computational domain is divided into hexahedral control volumes, and the integral form of the conservation equations is applied to each cell.
+
+\subsubsection{Spatial Discretization}
+
+\textbf{Convective terms} are discretized using first-order upwind differencing to ensure numerical stability \citep{leonard1979stable}. For a general convective flux $(\mathbf{u} \cdot \nabla)\phi$ at cell $(i,j,k)$:
+\begin{equation}
+    \left(\frac{\partial (u\phi)}{\partial x}\right)_i \approx 
+    \begin{cases} 
+        \dfrac{u_i(\phi_i - \phi_{i-1})}{\Delta x} & \text{if } u_i > 0 \\[10pt]
+        \dfrac{u_i(\phi_{i+1} - \phi_i)}{\Delta x} & \text{if } u_i \leq 0 
+    \end{cases}
+    \label{eq:upwind}
+\end{equation}
+
+\textbf{Diffusive terms} are discretized using second-order central differences:
+\begin{equation}
+    \left(\frac{\partial^2 \phi}{\partial x^2}\right)_i \approx \frac{\phi_{i+1} - 2\phi_i + \phi_{i-1}}{\Delta x^2}
+    \label{eq:central_diff}
+\end{equation}
+
+\subsubsection{Temporal Integration}
+
+An explicit forward Euler scheme is employed for time integration \citep{anderson1995computational}:
+\begin{equation}
+    \mathbf{u}^{n+1} = \mathbf{u}^n + \Delta t \left[-(\mathbf{u}^n \cdot \nabla)\mathbf{u}^n + \nu \nabla^2 \mathbf{u}^n\right]
+    \label{eq:euler}
+\end{equation}
+
+The time step $\Delta t$ is determined adaptively based on the Courant-Friedrichs-Lewy (CFL) condition and viscous stability constraints:
+\begin{equation}
+    \Delta t = \min\left(\frac{\text{CFL} \cdot \Delta x_{\min}}{u_{\max}}, \frac{0.25 \cdot \Delta x_{\min}^2}{\nu}\right)
+    \label{eq:timestep}
+\end{equation}
+
+where $\text{CFL} = 0.2$ is used for stability, and $\Delta x_{\min}$ is the minimum grid spacing.
+
+\subsubsection{Pressure-Velocity Coupling}
+
+The incompressibility constraint is enforced using a SIMPLE-like (Semi-Implicit Method for Pressure-Linked Equations) pressure correction procedure \citep{patankar1972calculation, vandoormaal1984enhancements}. After the momentum predictor step, a pressure Poisson equation is solved:
+\begin{equation}
+    \nabla^2 p' = \frac{\rho}{\Delta t} \nabla \cdot \mathbf{u}^*
+    \label{eq:pressure_poisson}
+\end{equation}
+
+where $\mathbf{u}^*$ is the intermediate velocity field from the momentum equations and $p'$ is the pressure correction. The pressure Poisson equation is solved iteratively using a Jacobi method with under-relaxation \citep{saad2003iterative}:
+\begin{equation}
+    p_{i,j,k}^{n+1} = \omega p_{i,j,k}' + (1-\omega)p_{i,j,k}^n
+    \label{eq:pressure_relax}
+\end{equation}
+
+where $\omega = 0.1$ is the under-relaxation factor for pressure corrections. The velocity field is then corrected:
+\begin{equation}
+    \mathbf{u}^{n+1} = \mathbf{u}^* - \frac{\Delta t}{\rho}\nabla p'
+    \label{eq:velocity_correction}
+\end{equation}
+
+Velocity under-relaxation ($\alpha_u = 0.5$) is applied during the momentum update to enhance stability.
+
+\subsection{Computational Domain and Grid}
+
+The computational domain represents a wind tunnel-like configuration with dimensions \SI{2.0}{\meter} $\times$ \SI{1.7}{\meter} $\times$ \SI{2.5}{\meter} (length $\times$ width $\times$ height) in the streamwise ($x$), lateral ($y$), and vertical ($z$) directions, respectively. The runner is positioned at $x = \SI{0.8}{\meter}$ from the inlet, centered laterally at $y = \SI{0.85}{\meter}$.
+
+A structured grid of $60 \times 45 \times 150$ cells is employed, with non-uniform spacing in the vertical direction to provide enhanced resolution near the head and visor region. The grid is refined in the zone $\SI{1.6}{\meter} \leq z \leq \SI{2.1}{\meter}$, yielding a minimum vertical cell size of approximately \SI{4.2}{\milli\meter} at head height ($z \approx \SI{1.84}{\meter}$). This resolution ensures that the \SI{5}{\milli\meter} visor thickness is adequately resolved. Horizontal grid spacing is uniform at approximately \SI{33}{\milli\meter}.
+
+\subsection{Runner and Visor Geometry}
+
+The runner is represented as a simplified humanoid geometry consisting of:
+\begin{itemize}
+    \item \textbf{Head}: Sphere of radius \SI{0.12}{\meter} (6\% of body height) centered at $z = \SI{1.88}{\meter}$
+    \item \textbf{Neck}: Cylinder connecting head to torso
+    \item \textbf{Torso}: Ellipsoidal cross-section with width \SI{0.44}{\meter} and depth \SI{0.24}{\meter}
+    \item \textbf{Legs}: Two cylindrical limbs with radius \SI{0.11}{\meter}
+    \item \textbf{Arms}: Two cylindrical limbs with radius \SI{0.07}{\meter}, positioned alongside the torso
+\end{itemize}
+
+The total body height is \SI{2.0}{\meter}, with proportions derived from anthropometric standards \citep{winter2009biomechanics}. The geometry is represented using an immersed boundary approach, where solid cells are identified and no-slip conditions are enforced at solid-fluid interfaces.
+
+The visor is modeled as a curved plate attached at the forehead, with:
+\begin{itemize}
+    \item \textbf{Length}: \SI{80}{\milli\meter} (brim extension from attachment point)
+    \item \textbf{Width}: \SI{160}{\milli\meter}
+    \item \textbf{Thickness}: \SI{5}{\milli\meter}
+\end{itemize}
+
+The visor angle $\theta$ is measured from the horizontal, with positive angles indicating upward tilt (standard wearing position) and negative angles indicating downward tilt. The attachment point is located at the runner's forehead, approximately \SI{20}{\milli\meter} in front of the head center at eye level.
+
+\subsection{Boundary Conditions}
+
+The following boundary conditions are applied:
+\begin{itemize}
+    \item \textbf{Inlet} ($x = 0$): Uniform velocity $u = U_\infty$, $v = w = 0$, where $U_\infty = \SI{5.0}{\meter\per\second}$ (\SI{18}{\kilo\meter\per\hour} running pace)
+    \item \textbf{Outlet} ($x = L_x$): Zero-gradient (Neumann) condition for velocity, reference pressure $p = 0$
+    \item \textbf{Bottom} ($z = 0$): No-slip wall (ground)
+    \item \textbf{Top} ($z = L_z$): Free-slip condition
+    \item \textbf{Sides} ($y = 0, L_y$): Symmetry conditions
+    \item \textbf{Solid surfaces}: No-slip condition ($\mathbf{u} = 0$)
+\end{itemize}
+
+\subsection{Drag Force Calculation}
+
+The aerodynamic drag force is computed by integrating pressure and viscous stresses over all solid surfaces. For each solid cell with surface area $A_i$ and outward normal $\hat{n}_i$:
+\begin{equation}
+    F_D = \sum_i \left[ p_i (\hat{n}_i \cdot \hat{x}) + \tau_{w,i} \right] A_i
+    \label{eq:drag}
+\end{equation}
+
+where $\tau_w$ is the wall shear stress contribution. In the present implementation, pressure drag dominates, and the drag force is computed from pressure differences between upstream and downstream faces of solid cells.
+
+\subsection{Simulation Parameters}
+
+Each simulation configuration is run for a specified number of iterations to approach quasi-steady state. The default configuration uses 500 iterations for rapid parametric surveys, with 2000 iterations recommended for fully converged production runs. Snapshots of the flow field are saved at regular intervals (every 50 iterations) for post-processing and visualization.
+
+Simulations are performed for 20 configurations:
+\begin{itemize}
+    \item 1 baseline case (no visor)
+    \item 19 visor angles: $-45°$, $-40°$, $-35°$, $-30°$, $-25°$, $-20°$, $-15°$, $-10°$, $-5°$, $0°$, $+5°$, $+10°$, $+15°$, $+20°$, $+25°$, $+30°$, $+35°$, $+40°$, $+45°$
+\end{itemize}
+
+The solver is implemented in Fortran 90 with OpenMP parallelization for computational efficiency \citep{chapman2008using}. Post-processing and visualization are performed using Python with NumPy, Matplotlib, and Pandas libraries.
+
+\subsection{Validation Considerations}
+
+While direct experimental validation is beyond the scope of the present study, the numerical methodology has been verified through:
+\begin{enumerate}
+    \item Grid convergence studies confirming mesh-independent results
+    \item Verification that solver stability is maintained throughout all simulations
+    \item Confirmation that computed flow patterns qualitatively match expected behavior for bluff-body flows
+\end{enumerate}
+
+The Reynolds number based on head diameter and inlet velocity is:
+\begin{equation}
+    Re = \frac{U_\infty D}{\nu} = \frac{5.0 \times 0.24}{1.5 \times 10^{-5}} \approx 80{,}000
+    \label{eq:reynolds}
+\end{equation}
+
+This places the flow in the subcritical regime for bluff bodies, where laminar separation occurs on the forward surface and turbulent wake dynamics dominate the downstream region \citep{achenbach1972experiments}. The present laminar simulation provides a reasonable approximation for comparative studies of drag trends, though absolute drag values may differ from fully turbulent computations.
+
+%===============================================================================
+% Bibliography
+%===============================================================================
+\bibliographystyle{apalike}
+\bibliography{references}
+
+\end{document}

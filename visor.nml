@@ -1,0 +1,21 @@
+&experiment
+    ! Number of solver iterations per configuration
+    ! Recommended values:
+    !   100-500  : Quick test runs
+    !   500      : Fast comparison (may not be fully converged)
+    !   2000     : Production run (well converged)
+    !   5000     : High-accuracy run
+    n_iterations = 500
+    
+    ! How often to print progress (iterations)
+    report_interval = 50
+    
+    ! How often to save snapshots for animation (iterations)
+    snapshot_interval = 50
+    
+    ! Inlet velocity (m/s) - typical running speeds:
+    !   5.0  = 18 km/h (5:33/km pace)
+    !   6.0  = 21.6 km/h (4:38/km pace)  
+    !   8.0  = 28.8 km/h (3:30/km pace, sprint)
+    inlet_velocity = 5.0
+/
