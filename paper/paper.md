@@ -168,58 +168,58 @@ This places the flow in the subcritical regime for bluff bodies, where laminar s
 
 ## References
 
-[1] Davies, C.T.M. (1980). Effects of wind assistance and resistance on the forward motion of a runner. *Journal of Applied Physiology*, 48(4), 702-709.
+[1] Davies, C.T.M. (1980). Effects of wind assistance and resistance on the forward motion of a runner. *Journal of Applied Physiology*, 48(4), 702-709. https://doi.org/10.1152/jappl.1980.48.4.702
 
-[2] Pugh, L.G.C.E. (1971). The influence of wind resistance in running and walking and the mechanical efficiency of work against horizontal or vertical forces. *Journal of Physiology*, 213(2), 255-276.
+[2] Pugh, L.G.C.E. (1971). The influence of wind resistance in running and walking and the mechanical efficiency of work against horizontal or vertical forces. *Journal of Physiology*, 213(2), 255-276. https://doi.org/10.1113/jphysiol.1971.sp009381
 
-[3] Kyle, C.R., & Caiozzo, V.J. (1986). The effect of athletic clothing aerodynamics upon running speed. *Medicine and Science in Sports and Exercise*, 18(5), 509-515.
+[3] Kyle, C.R., & Caiozzo, V.J. (1986). The effect of athletic clothing aerodynamics upon running speed. *Medicine and Science in Sports and Exercise*, 18(5), 509-515. https://doi.org/10.1249/00005768-198610000-00004
 
-[4] di Prampero, P.E., Atchou, G., Brückner, J.C., & Moia, C. (1986). The energetics of endurance running. *European Journal of Applied Physiology*, 55(3), 259-266.
+[4] di Prampero, P.E., Atchou, G., Brückner, J.C., & Moia, C. (1986). The energetics of endurance running. *European Journal of Applied Physiology*, 55(3), 259-266. https://doi.org/10.1007/BF02343797
 
 [5] Hoerner, S.F. (1965). *Fluid-Dynamic Drag*. Hoerner Fluid Dynamics, Bakersfield, CA.
 
-[6] Shanebrook, J.R., & Jaszczak, R.D. (1976). Aerodynamic drag analysis of runners. *Medicine and Science in Sports*, 8(1), 43-45.
+[6] Shanebrook, J.R., & Jaszczak, R.D. (1976). Aerodynamic drag analysis of runners. *Medicine and Science in Sports*, 8(1), 43-45. https://doi.org/10.1249/00005768-197621000-00013
 
-[7] Defraeye, T., Blocken, B., Koninckx, E., Hespel, P., & Carmeliet, J. (2010). Aerodynamic study of different cyclist positions: CFD analysis and full-scale wind-tunnel tests. *Journal of Biomechanics*, 43(7), 1262-1268.
+[7] Defraeye, T., Blocken, B., Koninckx, E., Hespel, P., & Carmeliet, J. (2010). Aerodynamic study of different cyclist positions: CFD analysis and full-scale wind-tunnel tests. *Journal of Biomechanics*, 43(7), 1262-1268. https://doi.org/10.1016/j.jbiomech.2010.01.025
 
-[8] Crouch, T.N., Burton, D., Brown, N.A.T., Thompson, M.C., & Sheridan, J. (2014). Flow topology in the wake of a cyclist and its effect on aerodynamic drag. *Journal of Fluid Mechanics*, 748, 5-35.
+[8] Crouch, T.N., Burton, D., Brown, N.A.T., Thompson, M.C., & Sheridan, J. (2014). Flow topology in the wake of a cyclist and its effect on aerodynamic drag. *Journal of Fluid Mechanics*, 748, 5-35. https://doi.org/10.1017/jfm.2013.678
 
-[9] D'Auteuil, A., Larose, G.L., & Zan, S.J. (2012). Wind turbulence in speed skating: Measurement, simulation and its effect on aerodynamic drag. *Journal of Wind Engineering and Industrial Aerodynamics*, 104, 585-593.
+[9] D'Auteuil, A., Larose, G.L., & Zan, S.J. (2012). Wind turbulence in speed skating: Measurement, simulation and its effect on aerodynamic drag. *Journal of Wind Engineering and Industrial Aerodynamics*, 104, 585-593. https://doi.org/10.1016/j.jweia.2012.02.002
 
-[10] Zdravkovich, M.M. (1997). *Flow Around Circular Cylinders: Volume 1: Fundamentals*. Oxford University Press.
+[10] Zdravkovich, M.M. (1997). *Flow Around Circular Cylinders: Volume 1: Fundamentals*. Oxford University Press. https://doi.org/10.1093/oso/9780198563969.001.0001
 
-[11] Bearman, P.W. (1984). Vortex shedding from oscillating bluff bodies. *Annual Review of Fluid Mechanics*, 16(1), 195-222.
+[11] Bearman, P.W. (1984). Vortex shedding from oscillating bluff bodies. *Annual Review of Fluid Mechanics*, 16(1), 195-222. https://doi.org/10.1146/annurev.fl.16.010184.001211
 
-[12] Hill, R.D. (1993). Aerodynamic drag of running athletes in different clothing configurations. *Sports Engineering*, 1(1), 35-42.
+[12] Hill, R.D. (1993). Aerodynamic drag of running athletes in different clothing configurations. *Sports Engineering*, 1(1), 35-42. https://doi.org/10.1007/BF01235136
 
-[13] Brownlie, L., Kyle, C., Harber, E., MacDonald, R., & Shorten, M. (2004). Reducing the aerodynamic drag of sports apparel: Development of the Nike Swift sprint spike. *The Engineering of Sport*, 5, 128-134.
+[13] Brownlie, L., Kyle, C., Harber, E., MacDonald, R., & Shorten, M. (2004). Reducing the aerodynamic drag of sports apparel: Development of the Nike Swift sprint spike. *The Engineering of Sport*, 5, 128-134. https://doi.org/10.1007/978-2-84099-785-9_17
 
-[14] Candau, R.B., Belli, A., Millet, G.Y., Georges, D., Barbier, B., & Rouillon, J.D. (1998). Energy cost and running mechanics during a treadmill run to voluntary exhaustion in humans. *European Journal of Applied Physiology*, 77(6), 479-485.
+[14] Candau, R.B., Belli, A., Millet, G.Y., Georges, D., Barbier, B., & Rouillon, J.D. (1998). Energy cost and running mechanics during a treadmill run to voluntary exhaustion in humans. *European Journal of Applied Physiology*, 77(6), 479-485. https://doi.org/10.1007/s004210050364
 
-[15] Blocken, B., Defraeye, T., Koninckx, E., Carmeliet, J., & Hespel, P. (2013). CFD simulations of the aerodynamic drag of two drafting cyclists. *Computers & Fluids*, 71, 435-445.
+[15] Blocken, B., Defraeye, T., Koninckx, E., Carmeliet, J., & Hespel, P. (2013). CFD simulations of the aerodynamic drag of two drafting cyclists. *Computers & Fluids*, 71, 435-445. https://doi.org/10.1016/j.compfluid.2012.11.012
 
-[16] Fintelman, D.M., Sterling, M., Hemida, H., & Li, F.X. (2014). Optimal cycling time trial position models: Aerodynamics versus power output and metabolic energy. *Journal of Biomechanics*, 47(8), 1894-1898.
+[16] Fintelman, D.M., Sterling, M., Hemida, H., & Li, F.X. (2014). Optimal cycling time trial position models: Aerodynamics versus power output and metabolic energy. *Journal of Biomechanics*, 47(8), 1894-1898. https://doi.org/10.1016/j.jbiomech.2014.02.029
 
-[17] Versteeg, H.K., & Malalasekera, W. (2007). *An Introduction to Computational Fluid Dynamics: The Finite Volume Method* (2nd ed.). Pearson Education.
+[17] Versteeg, H.K., & Malalasekera, W. (2007). *An Introduction to Computational Fluid Dynamics: The Finite Volume Method* (2nd ed.). Pearson Education. ISBN: 978-0131274983
 
-[18] Batchelor, G.K. (1967). *An Introduction to Fluid Dynamics*. Cambridge University Press.
+[18] Batchelor, G.K. (1967). *An Introduction to Fluid Dynamics*. Cambridge University Press. https://doi.org/10.1017/CBO9780511800955
 
-[19] Patankar, S.V. (1980). *Numerical Heat Transfer and Fluid Flow*. Hemisphere Publishing Corporation.
+[19] Patankar, S.V. (1980). *Numerical Heat Transfer and Fluid Flow*. Hemisphere Publishing Corporation. https://doi.org/10.1201/9781482234213
 
-[20] Ferziger, J.H., & Perić, M. (2002). *Computational Methods for Fluid Dynamics* (3rd ed.). Springer-Verlag.
+[20] Ferziger, J.H., & Perić, M. (2002). *Computational Methods for Fluid Dynamics* (3rd ed.). Springer-Verlag. https://doi.org/10.1007/978-3-642-56026-2
 
-[21] Leonard, B.P. (1979). A stable and accurate convective modelling procedure based on quadratic upstream interpolation. *Computer Methods in Applied Mechanics and Engineering*, 19(1), 59-98.
+[21] Leonard, B.P. (1979). A stable and accurate convective modelling procedure based on quadratic upstream interpolation. *Computer Methods in Applied Mechanics and Engineering*, 19(1), 59-98. https://doi.org/10.1016/0045-7825(79)90034-3
 
-[22] Anderson, J.D. (1995). *Computational Fluid Dynamics: The Basics with Applications*. McGraw-Hill.
+[22] Anderson, J.D. (1995). *Computational Fluid Dynamics: The Basics with Applications*. McGraw-Hill. ISBN: 978-0070016859
 
-[23] Patankar, S.V., & Spalding, D.B. (1972). A calculation procedure for heat, mass and momentum transfer in three-dimensional parabolic flows. *International Journal of Heat and Mass Transfer*, 15(10), 1787-1806.
+[23] Patankar, S.V., & Spalding, D.B. (1972). A calculation procedure for heat, mass and momentum transfer in three-dimensional parabolic flows. *International Journal of Heat and Mass Transfer*, 15(10), 1787-1806. https://doi.org/10.1016/0017-9310(72)90054-3
 
-[24] Van Doormaal, J.P., & Raithby, G.D. (1984). Enhancements of the SIMPLE method for predicting incompressible fluid flows. *Numerical Heat Transfer*, 7(2), 147-163.
+[24] Van Doormaal, J.P., & Raithby, G.D. (1984). Enhancements of the SIMPLE method for predicting incompressible fluid flows. *Numerical Heat Transfer*, 7(2), 147-163. https://doi.org/10.1080/01495728408961817
 
-[25] Saad, Y. (2003). *Iterative Methods for Sparse Linear Systems* (2nd ed.). SIAM.
+[25] Saad, Y. (2003). *Iterative Methods for Sparse Linear Systems* (2nd ed.). SIAM. https://doi.org/10.1137/1.9780898718003
 
-[26] Winter, D.A. (2009). *Biomechanics and Motor Control of Human Movement* (4th ed.). John Wiley & Sons.
+[26] Winter, D.A. (2009). *Biomechanics and Motor Control of Human Movement* (4th ed.). John Wiley & Sons. https://doi.org/10.1002/9780470549148
 
-[27] Chapman, B., Jost, G., & Van Der Pas, R. (2008). *Using OpenMP: Portable Shared Memory Parallel Programming*. MIT Press.
+[27] Chapman, B., Jost, G., & Van Der Pas, R. (2008). *Using OpenMP: Portable Shared Memory Parallel Programming*. MIT Press. ISBN: 978-0262533027
 
-[28] Achenbach, E. (1972). Experiments on the flow past spheres at very high Reynolds numbers. *Journal of Fluid Mechanics*, 54(3), 565-575.
+[28] Achenbach, E. (1972). Experiments on the flow past spheres at very high Reynolds numbers. *Journal of Fluid Mechanics*, 54(3), 565-575. https://doi.org/10.1017/S0022112072000874
